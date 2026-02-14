@@ -1,4 +1,9 @@
-# DNS Zone MX Consistency Checker
+# Check MX Zones in NAMED
+
+Readme: [Português](README.pt-br.md)
+
+![License](https://img.shields.io/github/license/sr00t3d/named-check-mx-zones)
+![Shell Script](https://img.shields.io/badge/language-Bash-green.svg)
 
 A Bash script designed for system administrators to validate local DNS zone files against live nameserver queries. It specifically targets domains configured with a local MX record pointing to `mail.domain.tld`.
 
@@ -32,7 +37,7 @@ ZONEDIR="/var/named"       # Directory containing .db zone files
 
 ## 🔧 Usage
 
-**1. Download the script (e.g., check_mx.sh):**
+**1. Download the script (e.g., check-mx-zones):**
 
 ```bash
 wget https://raw.githubusercontent.com/sr00t3d/named-check-mx-zones/refs/heads/main/check-mx-zones.sh
@@ -47,7 +52,7 @@ chmod +x check-mx-zones.sh
 **Run the script (may require `sudo` depending on read permissions of your `$ZONEDIR`):**
 
 ```bash
-sudo ./check_mx.sh
+sudo ./check-mx-zones.sh
 ```
 
 ## ⚠️ Important Notes
