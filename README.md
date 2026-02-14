@@ -1,6 +1,6 @@
 # Check MX Zones in NAMED
 
-Readme: [Português](README.ptbr.md)
+Readme: [Português](README-ptbr.md)
 
 ![License](https://img.shields.io/github/license/sr00t3d/named-check-mx-zones)
 ![Shell Script](https://img.shields.io/badge/language-Bash-green.svg)
