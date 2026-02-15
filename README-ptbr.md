@@ -1,6 +1,6 @@
 # Check MX Zones in NAMED
 
-Readme: [Inglês](README.md)
+Readme: [English](README.md)
 
 ![License](https://img.shields.io/github/license/sr00t3d/named-check-mx-zones)
 ![Shell Script](https://img.shields.io/badge/language-Bash-green.svg)
@@ -72,13 +72,13 @@ test-site.net   NO          0 mail.test-site.net. ERROR
 ## ⚠️ Aviso Legal
 
 > [!WARNING]
-> Este software é fornecido "como está". Embora extensivamente testado em ambientes Dovecot, **sempre realize um backup completo** dos seus diretórios Maildir antes de executar qualquer script de conversão. O autor não se responsabiliza por qualquer perda de dados.
+> Este software é fornecido "como está". Embora extensivamente testado em ambientes named. O autor não se responsabiliza por qualquer perda de dados.
 
 ---
 
 ## 📚 Tutorial Detalhado
 
-Para um guia completo passo a passo sobre como importar os arquivos gerados no Thunderbird e solucionar problemas comuns de migração, confira meu artigo completo:
+Para um guia completo passo a passo, confira meu artigo completo:
 
 👉 [**Verificar MX de Zonas de Domínio no NAMED**](https://perciocastelo.com.br/blog/check-domains-zone-mx-in-named.html)
 
