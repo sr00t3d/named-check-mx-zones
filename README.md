@@ -69,10 +69,10 @@ example.com     YES         0 mail.example.com.   OK
 test-site.net   NO          0 mail.test-site.net. ERROR
 ```
 
-## ⚠️ Disclaimer
+## ⚠️ Legal Notice
 
 > [!WARNING]
-> This software is provided "as-is". While extensively tested in named environments. The author is not responsible for any data loss.
+> This software is provided "as is". Always make sure to test first in a development environment. The author is not responsible for any misuse, legal consequences, or data impact caused by this tool.
 
 ---
 
