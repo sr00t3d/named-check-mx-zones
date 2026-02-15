@@ -72,13 +72,13 @@ test-site.net   NO          0 mail.test-site.net. ERROR
 ## ⚠️ Disclaimer
 
 > [!WARNING]
-> This software is provided "as-is". While extensively tested in Dovecot environments, **always perform a full backup** of your Maildir directories before running any conversion script. The author is not responsible for any data loss.
+> This software is provided "as-is". While extensively tested in named environments. The author is not responsible for any data loss.
 
 ---
 
 ## 📚 Detailed Tutorial
 
-For a complete step-by-step guide on how to import the generated files into Thunderbird and troubleshoot common migration issues, check out my full article:
+For a complete step-by-step guide, check out my full article:
 
 👉 [**Check Domain Zones MX in NAMED**](https://perciocastelo.com.br/blog/check-domains-zone-mx-in-named.html)
 
