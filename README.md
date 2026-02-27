@@ -5,6 +5,8 @@ Readme: [Português](README-ptbr.md)
 ![License](https://img.shields.io/github/license/sr00t3d/named-check-mx-zones)
 ![Shell Script](https://img.shields.io/badge/language-Bash-green.svg)
 
+<img width="700" src="named-check-mx-zones-cover.webp" />
+
 A Bash script designed for system administrators to validate local DNS zone files against live nameserver queries. It specifically targets domains configured with a local MX record pointing to `mail.domain.tld`.
 
 The script iterates through zone files (usually BIND/Named), queries two defined nameservers, cross-references the results, and checks the domain's registration status via WHOIS.
