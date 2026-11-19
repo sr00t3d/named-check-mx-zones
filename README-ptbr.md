@@ -1,74 +1,107 @@
 # Check MX Zones in NAMED
 
-Readme: [English](README.md)
+Readme: [EN](README.md)
 
-![License](https://img.shields.io/github/license/sr00t3d/named-check-mx-zones)
-![Shell Script](https://img.shields.io/badge/language-Bash-green.svg)
+![License](https://img.shields.io/github/license/sr00t3d/named-check-mx-zones) ![Shell Script](https://img.shields.io/badge/language-Bash-green.svg)
 
 <img width="700" src="named-check-mx-zones-cover.webp" />
 
-Um script Bash projetado para administradores de sistemas validarem arquivos de zona DNS locais contra consultas reais em servidores de nomes. Ele tem como alvo específico domínios configurados com um registro MX local apontando para `mail.domain.tld`.
+Um script Bash moderno projetado para administradores de sistemas e equipes DevOps validarem arquivos de zona DNS locais (BIND/Named em cPanel, DirectAdmin ou servidores dedicados) contra consultas reais em servidores de nomes autoritativos ou recursivos.
 
-O script percorre arquivos de zona (geralmente BIND/Named), consulta dois servidores de nomes definidos, faz a validação cruzada dos resultados e verifica o status de registro do domínio via WHOIS.
+O script analisa os arquivos de zona (`.db`), consulta os nameservers configurados, faz validação cruzada para detectar divergências de propagação ou desync, suporta verificação de registro de domínio via WHOIS e classifica o status de forma granular.
 
-## 🚀 Funcionalidades
+## 🚀 Funcionalidades (v1.1.0)
 
-* **Consistência de MX:** Compara os registros MX retornados por `NS1` e `NS2` para garantir sincronização.
-* **Validação de Configuração:** Verifica especificamente se o registro MX ativo corresponde à configuração local (apontando para `mail.domain` com prioridade `0`).
-* **Verificação de Registro:** Executa uma consulta `whois` para verificar se o domínio está atualmente registrado ou disponível (útil para limpeza de zonas antigas).
-* **Saída Formatada:** Gera uma tabela alinhada para facilitar a leitura.
+* **Auto-detecção de Nameservers:** Detecta automaticamente os nameservers em `/etc/nameserverips` (cPanel) ou `/etc/resolv.conf`, com fallback inteligente para `1.1.1.1` e `8.8.8.8`.
+* **Argumentos de Linha de Comando:** Configure diretório, servidores DNS, timeout e filtros diretamente via flags no terminal sem precisar editar o código.
+* **Consistência de MX & Status Detalhado:**
+  * `OK`: Registro MX sincronizado entre os nameservers e compatível com a configuração.
+  * `EXTERNAL_MX`: Registro válido e sincronizado, porém apontando para provedor externo (Google Workspace, Microsoft 365, Zoho, etc.).
+  * `DESYNC`: Divergência entre `NS1` e `NS2` (possível atraso de propagação ou falha de replicação de cluster DNS).
+  * `NO_MX`: Nenhum registro MX retornado na consulta pública.
+* **Parser Robusto de Zonas BIND:** Compatível com notação `@`, diretivas de TTL e registros com prioridades variadas.
+* **Verificação WHOIS Segura:** Suporte a múltiplos TLDs (`.br`, `.com`, `.net`, `.io`, etc.) com timeout integrado para evitar travamento em servidores de whois lentos, além da opção `--skip-whois` para varreduras ultrarrápidas.
+* **Saída Formatada e Colorida:** Tabela alinhada com cores indicativas no terminal e fallback automático para ambientes sem `column`.
 
 ## 📋 Pré-requisitos
 
-O script requer os seguintes utilitários instalados no sistema host:
+O script requer os seguintes utilitários instalados:
 
 * `bash` (4.0+)
-* `dig` (geralmente parte do `bind-utils` ou `dnsutils`)
-* `whois`
-* `column` (parte do `util-linux` ou `bsdmainutils`)
+* `dig` (pacote `bind-utils` no RHEL/CentOS/AlmaLinux ou `dnsutils` no Debian/Ubuntu)
+* `whois` (opcional; o script desativa automaticamente se não estiver presente)
+* `column` (opcional; o script possui fallback formatado nativo via `printf`)
 
-## ⚙️ Configuração
+## 🔧 Uso e Exemplos
 
-Abra o script e modifique as variáveis no topo do arquivo para corresponder ao seu ambiente:
-
-```bash
-NS1="ns1.yourserver.com"   # Servidor de Nomes primário para consulta
-NS2="ns2.yourserver.com"   # Servidor de Nomes secundário para consulta
-ZONEDIR="/var/named"       # Diretório contendo arquivos de zona .db
-```
-
-## 🔧 Uso
-
-**1. Baixe o script (ex.: check_mx.sh):**
+**1. Baixe o script:**
 
 ```bash
-wget https://raw.githubusercontent.com/sr00t3d/named-check-mx-zones/refs/heads/main/check-mx-zones.sh
-```
-
-**2. Torne-o executável:**
-
-```bash
+curl -O https://raw.githubusercontent.com/sr00t3d/named-check-mx-zones/refs/heads/main/check-mx-zones.sh
 chmod +x check-mx-zones.sh
 ```
 
-**Execute o script (pode exigir `sudo` dependendo das permissões de leitura do seu `$ZONEDIR`):**
+**2. Opções de execução:**
 
-```bash
-sudo ./check-mx-zones.sh
+```text
+Usage: check-mx-zones.sh [OPTIONS]
+
+Options:
+  -d, --dir DIR          Diretório contendo arquivos .db do BIND (padrão: /var/named)
+  -1, --ns1 SERVER       Servidor DNS primário para consulta (padrão: auto-detectado ou 1.1.1.1)
+  -2, --ns2 SERVER       Servidor DNS secundário para consulta (padrão: auto-detectado ou 8.8.8.8)
+  -t, --timeout SEC      Timeout de consulta DNS em segundos (padrão: 2)
+  -w, --skip-whois       Pular consultas WHOIS para varredura mais rápida
+  -a, --all              Verificar todos os domínios com MX, não apenas mail.<dominio>
+  -v, --verbose          Exibir progresso domínio a domínio durante a execução
+  --no-color             Desativar cores na saída
+  -h, --help             Exibir menu de ajuda e sair
 ```
 
-## ⚠️ Observações Importantes
+**3. Exemplos práticos:**
 
-> Limitação de Taxa do Whois: O script executa uma consulta whois para cada domínio correspondente. Se você tiver centenas de domínios, isso pode acionar limitação de taxa por provedores WHOIS ou desacelerar significativamente a execução.
+* **Execução padrão (auto-detecta servidores e analisa `/var/named`):**
+  ```bash
+  ./check-mx-zones.sh
+  ```
 
-> Lógica de Destino: O script atualmente filtra arquivos de zona locais contendo IN MX [prioridade] mail.domain.. Se seus arquivos de zona utilizam um formato diferente (ex.: apontando diretamente para Google Workspace ou Office 365), eles serão ignorados, a menos que você modifique a lógica de regex do grep dentro do loop.
+* **Definindo nameservers autoritativos específicos:**
+  ```bash
+  ./check-mx-zones.sh -1 ns1.seudominio.com.br -2 ns2.seudominio.com.br
+  ```
 
-📝 Exemplo de Saída
+* **Varredura rápida em massa (pulando WHOIS):**
+  ```bash
+  ./check-mx-zones.sh --skip-whois -a
+  ```
 
-```bash
-DOMAIN          REGISTERED  MX RECORD             STATUS
-example.com     YES         0 mail.example.com.   OK
-test-site.net   NO          0 mail.test-site.net. ERROR
+* **Diretório personalizado com timeout reduzido:**
+  ```bash
+  ./check-mx-zones.sh -d /etc/bind/zones -t 1 --skip-whois
+  ```
+
+## 📝 Exemplo de Saída
+
+```text
+Starting DNS Zone check (v1.1.0)...
+Scanning directory: /var/named
+Nameserver 1 (NS1): 1.1.1.1
+Nameserver 2 (NS2): 8.8.8.8
+DNS Query Timeout:  2s
+WHOIS Lookups:      Enabled
+Filter:             All MX zones
+
+================================================================================
+DOMAIN                REGISTERED  MX RECORD             STATUS
+--------------------------------------------------------------------------------
+exemplo.com.br        YES         0 mail.exemplo.com.br. OK
+cliente-externo.com   YES         10 aspmx.l.google.com. EXTERNAL_MX
+desync-domain.org     YES         10 mail.desync.org.   DESYNC
+zona-antiga.net       NO          (none)                NO_MX
+================================================================================
+Total zones checked: 4
+Summary: Discrepancies found (Check ERROR/DESYNC/EXTERNAL_MX/NO_MX status).
+Total execution time: 2s
 ```
 
 ## ⚠️ Aviso Legal
@@ -80,10 +113,10 @@ test-site.net   NO          0 mail.test-site.net. ERROR
 
 ## 📚 Tutorial Detalhado
 
-Para um guia completo passo a passo, confira meu artigo completo:
+Para um guia completo passo a passo, confira o artigo no blog:
 
 👉 [**Verificar MX de Zonas de Domínio no NAMED**](https://perciocastelo.com.br/blog/check-domains-zone-mx-in-named.html)
 
 ## Licença 📄
 
-Este projeto está licenciado sob a **GNU General Public License v3.0**. Veja o arquivo [LICENSE](LICENSE) para detalhes.
+Este projeto está licenciado sob a **Apache License 2.0**. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
